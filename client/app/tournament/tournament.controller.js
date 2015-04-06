@@ -1,50 +1,31 @@
 'use strict';
 
 angular.module('kikombeApp')
-  .controller('TournamentCtrl', function ($scope, $http, $modal) {
-    $scope.message = 'Hello';
-    $http.get('/api/tournaments').success(function(tournaments) {
-      $scope.tournaments = tournaments;
-    });
+.controller('TournamentCtrl', function ($scope, $http, $modal, $location, socket, Tournaments) {
+	$scope.tournaments = Tournaments.query({}, function(){
+      socket.syncUpdates('tournament', $scope.tournaments);
+	});
+	$scope.tournament = {};
 
-    $scope.addThing = function() {
-      if($scope.newThing === '') {
-        return;
-      }
-      $http.post('/api/tournaments', { name: $scope.newThing });
-      $scope.newThing = '';
-    };
+	$scope.addTournament = function() {
+		var newTournament = $scope.tournament;
+		var user = Tournaments.save(newTournament, function() {
+		});
+		$scope.tournament = {};
+	};
 
-    $scope.active = function(){
-		return this.start>=Date.now()&&this.start<=this.end;
+	$scope.active = function(tournament){
+		var start = Date.parse(tournament.start);
+		var end = Date.parse(tournament.end);
+		return start < Date.now() && Date.now() <= end;
 	};
 	$scope.format = function(date){
 		return this.date;
 	};
-	$scope.open = function () {
-		var modalInstance = $modal.open({
-			templateUrl: 'tournamentModal.html',
-			controller: 'TournamentModalCtrl',
-			size: 'lg'
-		});
-
-		modalInstance.result.then(function (selectedItem) {
-			$scope.selected = selectedItem;
-		}, function () {
-			$log.info('Modal dismissed at: ' + new Date());
-		});
+	$scope.go = function(tournament) {
+		$location.path('tournament/' + tournament);
 	};
-  }).controller('TournamentModalCtrl', function ($scope, $modalInstance) {
-
-	$scope.name = "";
-	$scope.start = {};
-	$scope.end = {};
-
-	$scope.ok = function () {
-		$modalInstance.close($scope.selected.item);
-	};
-
-	$scope.cancel = function () {
-		$modalInstance.dismiss('cancel');
-	};
+	$scope.$on('$destroy', function () {
+		socket.unsyncUpdates('tournament');
+	});
 });

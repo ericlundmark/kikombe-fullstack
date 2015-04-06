@@ -10,7 +10,6 @@ module.exports = function(app) {
 
   // Insert routes below
   app.use('/api/games', require('./api/game'));
-  app.use('/api/things', require('./api/thing'));
   app.use('/api/users', require('./api/user'));
   app.use('/api/tournaments', require('./api/tournament'));
   app.use('/api/cups', require('./api/cup'));

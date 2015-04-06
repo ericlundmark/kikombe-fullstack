@@ -19,7 +19,7 @@ function onConnect(socket) {
 
   // Insert sockets below
   require('../api/game/game.socket').register(socket);
-  require('../api/thing/thing.socket').register(socket);
+  require('../api/tournament/tournament.socket').register(socket);
 }
 
 module.exports = function (socketio) {
