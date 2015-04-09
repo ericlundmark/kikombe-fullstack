@@ -1,19 +1,12 @@
 'use strict';
 
 angular.module('kikombeApp')
-.controller('TournamentCtrl', function ($scope, $http, $modal, $location, socket, Tournaments) {
-	$scope.tournaments = Tournaments.query({}, function(){
-      socket.syncUpdates('tournament', $scope.tournaments);
+.controller('TournamentCtrl', function ($scope, socket, Tournaments, $stateParams) {
+	var id = $stateParams.tournamentid;
+	$scope.tournament = Tournaments.get({_id: id}, function(tournament){
+		$scope.tournament = tournament;
+		socket.syncUpdates('tournament', $scope.tournament);
 	});
-	$scope.tournament = {};
-
-	$scope.addTournament = function() {
-		var newTournament = $scope.tournament;
-		var user = Tournaments.save(newTournament, function() {
-		});
-		$scope.tournament = {};
-	};
-
 	$scope.active = function(tournament){
 		var start = Date.parse(tournament.start);
 		var end = Date.parse(tournament.end);
@@ -22,8 +15,17 @@ angular.module('kikombeApp')
 	$scope.format = function(date){
 		return this.date;
 	};
-	$scope.go = function(tournament) {
-		$location.path('tournament/' + tournament);
+	$scope.newGroup = '';
+	$scope.addGroup = function(){
+		$scope.tournament.groups.push({
+			name: $scope.newGroup,
+			teams: [],
+			games: []
+		});
+		console.log($scope.tournament);
+		$scope.tournament.$update(function(){
+			$scope.newGroup = '';
+		});
 	};
 	$scope.$on('$destroy', function () {
 		socket.unsyncUpdates('tournament');

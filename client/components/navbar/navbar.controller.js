@@ -6,8 +6,8 @@ angular.module('kikombeApp')
       'title': 'Home',
       'link': '/'
     },{
-    	'title': 'Tournament',
-    	'link': '/tournament'
+    	'title': 'Tournaments',
+    	'link': '/tournaments'
     }];
 
     $scope.isCollapsed = true;
